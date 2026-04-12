@@ -11,7 +11,7 @@
         "ext-openssl": "*",
         "laminas/laminas-diactoros": "2.0.0",
         "firebase/php-jwt": "^6.4",
-        "libra/inertia-psr15": "dev-master",
+        "libra/inertia-psr15": "^1.0",
         "slim/twig-view": "^2.5"
     }
 }
