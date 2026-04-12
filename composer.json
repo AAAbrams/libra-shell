@@ -1,0 +1,17 @@
+{
+    "name": "libra/shell",
+    "description": "Bitrix SPA shell with Inertia, Slim and React SSR",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Libra\\Shell\\": "src/"
+        }
+    },
+    "require": {
+        "ext-openssl": "*",
+        "laminas/laminas-diactoros": "2.0.0",
+        "firebase/php-jwt": "^6.4",
+        "libra/inertia-psr15": "dev-master",
+        "slim/twig-view": "^2.5"
+    }
+}

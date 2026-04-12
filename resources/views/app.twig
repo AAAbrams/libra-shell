@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libra Shell</title>
+    {{ inertia_head(ssrHead) }}
+    {{ vite_react_refresh() }}
+    {{ vite('resources/js/app/entries/client.tsx') }}
+</head>
+<body>
+{{ inertia(page, ssrBody) }}
+</body>
+</html>
