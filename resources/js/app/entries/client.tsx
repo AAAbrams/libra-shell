@@ -1,4 +1,4 @@
-import '../../../css/app.css'
+import '@shell-css-entry'
 
 import { createInertiaApp } from '@inertiajs/react'
 import { createRoot, hydrateRoot } from 'react-dom/client'

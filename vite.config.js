@@ -25,6 +25,21 @@ function resolveBareImportsFromModuleRoot() {
 function resolveFromRoot(value) {
     return path.resolve(moduleRoot, value);
 }
+function resolveCssEntry(cssEntry, projectRoot) {
+    const normalizedCssEntry = cssEntry?.trim();
+    if (!normalizedCssEntry) {
+        return resolveFromRoot('resources/css/app.css');
+    }
+    if (path.isAbsolute(normalizedCssEntry)) {
+        return normalizedCssEntry;
+    }
+    if (normalizedCssEntry === '.' ||
+        normalizedCssEntry.startsWith('./') ||
+        normalizedCssEntry.startsWith('../')) {
+        return path.resolve(moduleRoot, normalizedCssEntry);
+    }
+    return path.resolve(projectRoot, normalizedCssEntry);
+}
 function resolveDirectory(directory, projectRoot) {
     const normalizedDirectory = directory.trim();
     if (!normalizedDirectory) {
@@ -122,6 +137,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     const outDir = resolveOutputDir(isSsrBuild ? ssrOutDir : clientOutDir, projectRoot);
     const base = resolvePublicBasePath(clientOutDir, env.VITE_PUBLIC_BASE);
     const input = parseInput(env.VITE_INPUT || env.VITE_ENTRY);
+    const cssEntry = resolveCssEntry(env.VITE_CSS_ENTRY, projectRoot);
     const srcDir = env.VITE_SRC_DIR?.trim() || 'resources';
     const devServerPort = Number(env.VITE_DEV_SERVER_PORT || 5173);
     const extraPagesDir = env.VITE_SHELL_EXTRA_PAGE_DIR?.trim()
@@ -233,6 +249,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 {
                     find: '@shell-extra-pages',
                     replacement: extraPagesDir,
+                },
+                {
+                    find: '@shell-css-entry',
+                    replacement: cssEntry,
                 },
             ]
         }

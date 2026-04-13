@@ -83,6 +83,7 @@
 
 ```dotenv
 VITE_INPUT=resources/js/app/entries/client.tsx
+VITE_CSS_ENTRY=resources/css/app.css
 VITE_OUT_DIR=local/assets/libra.shell/build
 VITE_SSR_OUT_DIR=local/assets/libra.shell/ssr
 VITE_SSR_PORT=13714
@@ -93,6 +94,12 @@ VITE_SHELL_EXTRA_PAGE_DIR=../../libra-shell/resources/js/pages
 ```
 
 `VITE_SHELL_PAGE_PATHS` задаёт, где frontend и SSR ищут page-компоненты.
+
+`VITE_CSS_ENTRY` позволяет глобально подменить базовый CSS entry. Если переменная не указана, модуль использует встроенный `resources/css/app.css`. Для внешнего файла можно указать:
+
+- путь относительно корня проекта, например `resources/css/app.css`
+- путь относительно корня модуля, например `../../custom/app.css`
+- абсолютный путь
 
 Поведение по умолчанию:
 
