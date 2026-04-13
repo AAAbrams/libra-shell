@@ -5,6 +5,7 @@
 - точки входа на базе Slim для SPA-маршрутов
 - интеграцию Inertia для PHP
 - React/Vite frontend с поддержкой SSR
+- UI-слой на Mantine вместо Tailwind/shadcn
 - возможность использовать внешние точки входа и внешние директории с TSX-страницами
 
 ## Использование С Composer
@@ -201,6 +202,8 @@ import { CheckoutLayout } from '@libra-shell/layouts'
 ```ts
 import { Button, CheckoutLayout, useTypedPage } from '@libra-shell'
 ```
+
+`@libra-shell/ui` теперь является тонким адаптером поверх Mantine, чтобы общий UI-слой модуля оставался переиспользуемым и без зависимости от Tailwind/shadcn.
 
 Правило зависимости должно быть односторонним:
 

@@ -1,11 +1,12 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 type RollupInput = string | string[] | Record<string, string>
 const moduleRoot = __dirname
-const defaultProjectRoot = path.resolve(moduleRoot, '../../..')
+const defaultProjectRoot = moduleRoot.includes('/local/modules/')
+    ? path.resolve(moduleRoot, '../../..')
+    : moduleRoot
 const defaultPagesRoot = path.resolve(moduleRoot, 'resources/js/pages')
 
 function resolveBareImportsFromModuleRoot() {
@@ -190,11 +191,7 @@ function resolveManualChunk(id: string): string | undefined {
         return 'vendor-icons'
     }
 
-    if (
-        normalizedId.includes('/node_modules/clsx/') ||
-        normalizedId.includes('/node_modules/tailwind-merge/') ||
-        normalizedId.includes('/node_modules/class-variance-authority/')
-    ) {
+    if (normalizedId.includes('/node_modules/@mantine/')) {
         return 'vendor-ui'
     }
 
@@ -225,7 +222,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         envDir: moduleRoot,
         root: moduleRoot,
         base,
-        plugins: [resolveBareImportsFromModuleRoot(), react(), tailwindcss()],
+        plugins: [resolveBareImportsFromModuleRoot(), react()],
         server: {
             host: '0.0.0.0',
             port: devServerPort,

@@ -1,13 +1,19 @@
 import React from 'react'
-
-import { cn } from '@/js/lib'
+import { Container as MantineContainer } from '@mantine/core'
 
 interface Props {
     className?: string
+    size?: string | number
 }
 
-export const Container: React.FC<React.PropsWithChildren<Props>> = ({ className, children }) => {
+export const Container: React.FC<React.PropsWithChildren<Props>> = ({
+    children,
+    className,
+    size = 1240,
+}) => {
     return (
-        <div className={cn('mx-auto max-w-7xl', className)}>{children}</div>
+        <MantineContainer className={className} px="md" size={size}>
+            {children}
+        </MantineContainer>
     )
 }

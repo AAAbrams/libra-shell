@@ -1,4 +1,5 @@
 import React from 'react'
+import { Box } from '@mantine/core'
 
 import { Container, Header } from '@libra-shell/shared'
 
@@ -8,9 +9,15 @@ export interface CheckoutLayoutProps {
 
 export function CheckoutLayout({ children }: CheckoutLayoutProps) {
     return (
-        <main className="min-h-screen bg-[#f2f6fa]">
-            <Header className="bg-white" />
+        <Box
+            component="main"
+            style={{
+                backgroundColor: '#f2f6fa',
+                minHeight: '100vh',
+            }}
+        >
+            <Header />
             <Container>{children}</Container>
-        </main>
+        </Box>
     )
 }

@@ -1,4 +1,15 @@
 import { Head } from '@inertiajs/react'
+import {
+    Badge,
+    Box,
+    Container,
+    Group,
+    Paper,
+    Stack,
+    Text,
+    ThemeIcon,
+    Title,
+} from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 
 import { Button } from '@libra-shell/ui'
@@ -8,37 +19,62 @@ export default function Home() {
         <>
             <Head title="Home" />
 
-            <main className="min-h-screen bg-[radial-gradient(circle_at_top,_hsl(var(--primary)/0.18),_transparent_42%),linear-gradient(180deg,hsl(var(--background)),hsl(var(--muted)/0.45))] text-foreground">
-                <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center px-6 py-16">
-                    <section className="grid gap-8 md:max-w-2xl">
-                        <span className="inline-flex w-fit items-center rounded-full border border-border/60 bg-background/70 px-3 py-1 text-sm text-muted-foreground shadow-sm backdrop-blur">
-                            Inertia + Vite + Tailwind + shadcn/ui
-                        </span>
+            <Box component="main" mih="100vh">
+                <Container py={96} size={1200}>
+                    <Paper
+                        p={{ base: 'xl', sm: 40 }}
+                        radius="32px"
+                        shadow="md"
+                        style={{
+                            background:
+                                'linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.86))',
+                            border: '1px solid rgba(255, 255, 255, 0.7)',
+                            backdropFilter: 'blur(16px)',
+                        }}
+                    >
+                        <Stack gap="xl" maw={720}>
+                            <Badge
+                                color="cyan"
+                                radius="xl"
+                                size="lg"
+                                variant="light"
+                                w="fit-content"
+                            >
+                                Inertia + Vite + Mantine
+                            </Badge>
 
-                        <div className="grid gap-4">
-                            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-                                Libra Shell front-end scaffold is ready.
-                            </h1>
-                            <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
-                                The project now uses a Laravel-style Inertia
-                                entrypoint, Tailwind v4, and shadcn-compatible
-                                UI primitives.
-                            </p>
-                        </div>
+                            <Stack gap="md">
+                                <Title order={1} size="3.5rem">
+                                    Libra Shell front-end scaffold is ready.
+                                </Title>
 
-                        <div className="flex flex-wrap gap-3">
-                            <Button size="lg" className="gap-2">
-                                Open next step
-                                <ArrowRight className="size-4" />
-                            </Button>
+                                <Text c="dimmed" fz="lg" lh={1.7} maw={620}>
+                                    The project now uses a Laravel-style
+                                    Inertia entrypoint and Mantine UI
+                                    primitives instead of Tailwind and shadcn.
+                                </Text>
+                            </Stack>
 
-                            <Button size="lg" variant="outline">
-                                Review setup
-                            </Button>
-                        </div>
-                    </section>
-                </div>
-            </main>
+                            <Group gap="md" wrap="wrap">
+                                <Button
+                                    leftSection={
+                                        <ThemeIcon color="cyan" radius="xl" size={28} variant="white">
+                                            <ArrowRight size={16} />
+                                        </ThemeIcon>
+                                    }
+                                    size="lg"
+                                >
+                                    Open next step
+                                </Button>
+
+                                <Button size="lg" variant="outline">
+                                    Review setup
+                                </Button>
+                            </Group>
+                        </Stack>
+                    </Paper>
+                </Container>
+            </Box>
         </>
     )
 }

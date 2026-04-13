@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react'
+import { Stack, Text, Title } from '@mantine/core'
 
 import { useTypedPage } from '@/js/hooks'
 import { CheckoutLayout } from '@/js/layouts'
@@ -20,7 +21,12 @@ export default function Checkout() {
                 <title>{seo.title}</title>
             </Head>
             <CheckoutLayout>
-                <h1>{seo.h1}</h1>
+                <Stack gap="sm" py="xl">
+                    <Title order={1}>{seo.h1}</Title>
+                    <Text c="dimmed" maw={640}>
+                        {seo.description}
+                    </Text>
+                </Stack>
             </CheckoutLayout>
         </>
     )

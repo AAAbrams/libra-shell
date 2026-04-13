@@ -8,6 +8,7 @@ import {
     pageLookupPaths,
     pages,
 } from '@/js/app/config/page-registry'
+import { AppProvider } from '@/js/app/providers/app-provider'
 import { resolvePageComponent } from '@/js/lib'
 import type { InertiaPage } from '@/js/types'
 
@@ -43,11 +44,20 @@ void createInertiaApp({
         (await resolvePageComponent(name, pages, pageLookupPaths)).default,
     setup({ el, App, props }) {
         if (el.hasChildNodes()) {
-            hydrateRoot(el, <App {...props} />)
+            hydrateRoot(
+                el,
+                <AppProvider>
+                    <App {...props} />
+                </AppProvider>
+            )
             return
         }
 
-        createRoot(el).render(<App {...props} />)
+        createRoot(el).render(
+            <AppProvider>
+                <App {...props} />
+            </AppProvider>
+        )
     },
     progress: {
         color: '#4B5563',

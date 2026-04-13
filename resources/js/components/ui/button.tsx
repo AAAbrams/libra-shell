@@ -1,48 +1,68 @@
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-
-import { cn } from '@/js/lib'
-
-const buttonVariants = cva(
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-4 focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
-    {
-        variants: {
-            variant: {
-                default:
-                    'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
-                destructive:
-                    'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-                outline:
-                    'border border-input bg-background/80 shadow-sm hover:bg-accent hover:text-accent-foreground',
-                secondary:
-                    'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-                ghost: 'hover:bg-accent hover:text-accent-foreground',
-                link: 'text-primary underline-offset-4 hover:underline',
-            },
-            size: {
-                default: 'h-10 px-4 py-2',
-                sm: 'h-9 rounded-md px-3',
-                lg: 'h-11 rounded-xl px-6',
-                icon: 'size-10',
-            },
-        },
-        defaultVariants: {
-            variant: 'default',
-            size: 'default',
-        },
-    }
-)
+import { forwardRef, type CSSProperties } from 'react'
+import {
+    Button as MantineButton,
+    type ButtonProps as MantineButtonProps,
+} from '@mantine/core'
 
 export interface ButtonProps
-    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-        VariantProps<typeof buttonVariants> {}
+    extends Omit<MantineButtonProps, 'size' | 'variant' | 'radius'> {
+    size?: 'default' | 'sm' | 'lg' | 'icon'
+    variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+}
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, ...props }, ref) => {
+const sizeMap = {
+    default: 'md',
+    sm: 'sm',
+    lg: 'lg',
+    icon: 'compact-md',
+} as const
+
+const variantMap = {
+    default: 'filled',
+    destructive: 'filled',
+    outline: 'outline',
+    secondary: 'light',
+    ghost: 'subtle',
+    link: 'transparent',
+} as const
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+    (
+        {
+            color,
+            size = 'default',
+            style,
+            variant = 'default',
+            ...props
+        },
+        ref
+    ) => {
+        const resolvedVariant = variantMap[variant]
+        const resolvedColor = color ?? (variant === 'destructive' ? 'red' : 'cyan')
+        const resolvedStyle: CSSProperties = {
+            ...(size === 'icon'
+                ? {
+                    width: 42,
+                    minWidth: 42,
+                    paddingInline: 0,
+                }
+                : {}),
+            ...(variant === 'link'
+                ? {
+                    paddingInline: 0,
+                }
+                : {}),
+            ...(style as CSSProperties | undefined),
+        }
+
         return (
-            <button
-                className={cn(buttonVariants({ variant, size, className }))}
+            <MantineButton
+                color={resolvedColor}
+                radius="xl"
                 ref={ref}
+                size={sizeMap[size]}
+                style={resolvedStyle}
+                variant={resolvedVariant}
                 {...props}
             />
         )
@@ -50,5 +70,3 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 
 Button.displayName = 'Button'
-
-export { buttonVariants }

@@ -11,7 +11,7 @@
         "forceConsistentCasingInFileNames": true,
         "module": "ESNext",
         "moduleResolution": "Bundler",
-        "baseUrl": "./libra.shell",
+        "baseUrl": ".",
         "paths": {
             "@/*": ["resources/*"],
             "@libra-shell": ["resources/js/index.ts"],
