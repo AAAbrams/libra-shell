@@ -2,7 +2,11 @@
     "compilerOptions": {
         "target": "ES2020",
         "useDefineForClassFields": true,
-        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
+        ],
         "allowJs": false,
         "skipLibCheck": true,
         "esModuleInterop": true,
@@ -13,27 +17,78 @@
         "moduleResolution": "Bundler",
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/*"],
-            "@libra-shell": ["resources/js/index.ts"],
-            "@libra-shell/*": ["resources/js/*"],
-            "@libra-shell/ui": ["resources/js/components/ui/index.ts"],
-            "@libra-shell/ui/*": ["resources/js/components/ui/*"],
-            "@libra-shell/shared": ["resources/js/components/shared/index.ts"],
-            "@libra-shell/shared/*": ["resources/js/components/shared/*"],
-            "@libra-shell/hooks": ["resources/js/hooks/index.ts"],
-            "@libra-shell/hooks/*": ["resources/js/hooks/*"],
-            "@libra-shell/lib": ["resources/js/lib/index.ts"],
-            "@libra-shell/lib/*": ["resources/js/lib/*"],
-            "@libra-shell/layouts": ["resources/js/layouts/index.ts"],
-            "@libra-shell/layouts/*": ["resources/js/layouts/*"],
-            "@libra-shell/types": ["resources/js/types/index.ts"],
-            "@libra-shell/types/*": ["resources/js/types/*"]
+            "@/*": [
+                "resources/*"
+            ],
+            "@libra-shell": [
+                "resources/js/index.ts"
+            ],
+            "@libra-shell/*": [
+                "resources/js/*"
+            ],
+            "@libra-shell/ui": [
+                "resources/js/components/ui/index.ts"
+            ],
+            "@libra-shell/ui/*": [
+                "resources/js/components/ui/*"
+            ],
+            "@libra-shell/shared": [
+                "resources/js/components/shared/index.ts"
+            ],
+            "@libra-shell/shared/*": [
+                "resources/js/components/shared/*"
+            ],
+            "@libra-shell/hooks": [
+                "resources/js/hooks/index.ts"
+            ],
+            "@libra-shell/hooks/*": [
+                "resources/js/hooks/*"
+            ],
+            "@libra-shell/lib": [
+                "resources/js/lib/index.ts"
+            ],
+            "@libra-shell/lib/*": [
+                "resources/js/lib/*"
+            ],
+            "@libra-shell/layouts": [
+                "resources/js/layouts/index.ts"
+            ],
+            "@libra-shell/layouts/*": [
+                "resources/js/layouts/*"
+            ],
+            "@libra-shell/types": [
+                "resources/js/types/index.ts"
+            ],
+            "@libra-shell/types/*": [
+                "resources/js/types/*"
+            ],
+            "@shell-app-config": [
+                "resources/js/app/config/index.ts"
+            ],
+            "@shell-app-config/*": [
+                "resources/js/app/config/*"
+            ],
+            "@shell-app-providers": [
+                "resources/js/app/providers/index.ts"
+            ],
+            "@shell-app-providers/*": [
+                "resources/js/app/providers/*"
+            ],
+            "@shell-icons": [
+                "resources/js/icons/index.ts"
+            ],
+            "@shell-icons/*": [
+                "resources/js/icons/*"
+            ]
         },
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "types": ["vite/client"]
+        "types": [
+            "vite/client",
+            "vite-plugin-svgr/client"
+        ]
     },
     "include": [
         "resources/js/**/*.ts",

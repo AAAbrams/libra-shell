@@ -1,5 +1,7 @@
+import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import svgr from 'vite-plugin-svgr';
 import path from 'path';
 const moduleRoot = __dirname;
 const defaultProjectRoot = moduleRoot.includes('/local/modules/')
@@ -87,6 +89,10 @@ function resolvePublicBasePath(publicOutDir, explicitBase) {
     }
     return `/${normalizedOutDir}/`;
 }
+function resolveOptionalShellOverride(extraShellJsRoot, relativePath, fallbackPath) {
+    const candidate = path.resolve(extraShellJsRoot, relativePath);
+    return fs.existsSync(candidate) ? candidate : fallbackPath;
+}
 function parseInput(rawInput) {
     const fallbackInput = 'resources/js/app/entries/client.tsx';
     const normalizedInput = rawInput?.trim() || fallbackInput;
@@ -142,11 +148,15 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     const extraPagesDir = env.VITE_SHELL_EXTRA_PAGE_DIR?.trim()
         ? resolveDirectory(env.VITE_SHELL_EXTRA_PAGE_DIR, projectRoot)
         : defaultPagesRoot;
+    const extraShellJsRoot = path.dirname(extraPagesDir);
+    const shellAppConfigRoot = resolveOptionalShellOverride(extraShellJsRoot, 'app/config', resolveFromRoot('resources/js/app/config'));
+    const shellAppProvidersRoot = resolveOptionalShellOverride(extraShellJsRoot, 'app/providers', resolveFromRoot('resources/js/app/providers'));
+    const shellIconsRoot = resolveOptionalShellOverride(extraShellJsRoot, 'icons', path.resolve(extraShellJsRoot, 'icons'));
     return {
         envDir: moduleRoot,
         root: moduleRoot,
         base,
-        plugins: [resolveBareImportsFromModuleRoot(), react()],
+        plugins: [resolveBareImportsFromModuleRoot(), svgr(), react()],
         server: {
             host: '0.0.0.0',
             port: devServerPort,
@@ -252,6 +262,30 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 {
                     find: '@shell-css-entry',
                     replacement: cssEntry,
+                },
+                {
+                    find: /^@shell-app-config$/,
+                    replacement: path.resolve(shellAppConfigRoot, 'index.ts'),
+                },
+                {
+                    find: /^@shell-app-config\/(.*)$/,
+                    replacement: `${shellAppConfigRoot}/$1`,
+                },
+                {
+                    find: /^@shell-app-providers$/,
+                    replacement: path.resolve(shellAppProvidersRoot, 'index.ts'),
+                },
+                {
+                    find: /^@shell-app-providers\/(.*)$/,
+                    replacement: `${shellAppProvidersRoot}/$1`,
+                },
+                {
+                    find: /^@shell-icons$/,
+                    replacement: path.resolve(shellIconsRoot, 'index.ts'),
+                },
+                {
+                    find: /^@shell-icons\/(.*)$/,
+                    replacement: `${shellIconsRoot}/$1`,
                 },
             ]
         }

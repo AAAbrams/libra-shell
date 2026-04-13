@@ -7,8 +7,8 @@ import {
     appName,
     pageLookupPaths,
     pages,
-} from '@/js/app/config/page-registry'
-import { AppProvider } from '@/js/app/providers/app-provider'
+} from '@shell-app-config/page-registry'
+import { AppProvider } from '@shell-app-providers/app-provider'
 import { resolvePageComponent } from '@/js/lib'
 import type { InertiaPage } from '@/js/types'
 

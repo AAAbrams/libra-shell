@@ -38,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref
     ) => {
         const resolvedVariant = variantMap[variant]
-        const resolvedColor = color ?? (variant === 'destructive' ? 'red' : 'cyan')
+        const resolvedColor = color ?? (variant === 'destructive' ? 'red' : undefined)
         const resolvedStyle: CSSProperties = {
             ...(size === 'icon'
                 ? {
