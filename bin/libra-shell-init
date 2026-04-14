@@ -37,8 +37,8 @@ $packageRoot = dirname(__DIR__);
 $stubRoot = $packageRoot . '/stubs/init';
 
 $files = [
-    'bootstrap/libra-shell.php',
-    'routes/libra-shell.php',
+    'bootstrap/app.php',
+    'routes/web.php',
     'resources/views/app.twig',
     'resources/css/app.css',
     'resources/js/entries/client.tsx',
@@ -65,7 +65,7 @@ foreach ($files as $relativePath) {
 
     $directory = dirname($destination);
 
-    if (!is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)) {
+    if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
         fwrite(STDERR, "Unable to create directory: {$directory}\n");
         exit(1);
     }
@@ -99,7 +99,7 @@ if ($skipped !== []) {
 fwrite(STDOUT, <<<TEXT
 
 Next steps:
-  1. Register bootstrap/libra-shell.php in your front controller.
+  1. Register bootstrap/app.php in your front controller.
   2. Point VITE_INPUT to resources/js/entries/client.tsx.
   3. Build SSR with resources/js/entries/server.tsx.
 

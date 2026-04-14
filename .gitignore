@@ -1,8 +1,8 @@
 node_modules/
+vendor/
 public/build/
 bootstrap/ssr/
 dist/
-local/assets/libra.shell/
 
 .env
 .DS_Store

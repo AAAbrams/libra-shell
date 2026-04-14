@@ -7,16 +7,13 @@ const defaultProjectRoot = resolveProjectRoot(moduleRoot)
 const projectRoot = process.env.VITE_APP_ROOT?.trim()
     ? resolveOutputDir(process.env.VITE_APP_ROOT.trim(), defaultProjectRoot)
     : defaultProjectRoot
-const ssrOutDir = process.env.VITE_SSR_OUT_DIR?.trim() || 'local/assets/libra.shell/ssr'
+const ssrOutDir = process.env.VITE_SSR_OUT_DIR?.trim() || 'bootstrap/ssr'
 const entryFile = path.resolve(resolveOutputDir(ssrOutDir, projectRoot), 'ssr.js')
 
 await import(pathToFileURL(entryFile).href)
 
 function resolveProjectRoot(currentModuleRoot) {
-    if (
-        currentModuleRoot.includes('/local/modules/')
-        || currentModuleRoot.includes('/vendor/')
-    ) {
+    if (currentModuleRoot.includes('/vendor/')) {
         return path.resolve(currentModuleRoot, '../../..')
     }
 
@@ -36,7 +33,6 @@ function resolveOutputDir(outDir, projectRootPath) {
         outDir === '.'
         || outDir.startsWith('./')
         || outDir.startsWith('../')
-        || outDir.startsWith('public/')
         || outDir.startsWith('bootstrap/')
     ) {
         return path.resolve(moduleRoot, outDir)

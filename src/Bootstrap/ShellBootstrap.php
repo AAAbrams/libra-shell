@@ -29,13 +29,8 @@ class ShellBootstrap
     )
     {
         if ($environmentPath) {
-            Dotenv::createImmutable($environmentPath)->safeLoad();
+            Dotenv::createUnsafeImmutable($environmentPath)->safeLoad();
         }
-
-        if (isset($_SERVER['REAL_FILE_PATH'])) {
-            $_SERVER['SCRIPT_NAME'] = $_SERVER['REAL_FILE_PATH'];
-        }
-
         $this->container = new Container();
     }
 
@@ -70,19 +65,6 @@ class ShellBootstrap
     {
         $this->middlewares = $middlewares;
         return $this;
-    }
-
-    public function registerRoutes(
-        ?string $auth = null,
-        ?string $api = null,
-        ?string $web = null
-    ): self
-    {
-        return $this->registerRouteFiles([
-            $auth ?? '',
-            $api ?? '',
-            $web ?? '',
-        ]);
     }
 
     /**

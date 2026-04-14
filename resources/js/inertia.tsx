@@ -90,42 +90,6 @@ export function createLibraInertiaClient(
     })
 }
 
-export function createLibraInertiaServer(
-    options: InertiaServerBootstrapOptions
-) {
-    return bootstrapLibraInertiaServer(options)
-}
-
-async function bootstrapLibraInertiaServer(
-    options: InertiaServerBootstrapOptions
-) {
-    const port = options.port ?? Number(import.meta.env.VITE_SSR_PORT || 13714)
-    const inertiaServerModule = `${'@inertiajs/react'}/server`
-    const reactDomServerModule = `${'react-dom'}/server`
-    const [{ default: createServer }, { default: ReactDOMServer }] = await Promise.all([
-        import(/* @vite-ignore */ inertiaServerModule),
-        import(/* @vite-ignore */ reactDomServerModule),
-    ])
-
-    return createServer(
-        (page: InertiaPage) =>
-            createInertiaApp({
-                page: page as never,
-                render: ReactDOMServer.renderToString,
-                resolve: async (name) =>
-                    (await resolvePageComponent(
-                        name,
-                        options.pages,
-                        options.pageLookupPaths
-                    )).default,
-                setup: ({ App, props }) =>
-                    wrapApplication(<App {...props} />, options.wrap),
-                title: buildDocumentTitle(options.appName),
-            }),
-        port
-    )
-}
-
 function buildDocumentTitle(appName = 'Libra Shell') {
     return (title: string) => (title ? `${title} - ${appName}` : appName)
 }

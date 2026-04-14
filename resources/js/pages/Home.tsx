@@ -3,16 +3,11 @@ import {
     Badge,
     Box,
     Container,
-    Group,
     Paper,
     Stack,
     Text,
-    ThemeIcon,
     Title,
 } from '@mantine/core'
-import { ArrowRight } from 'lucide-react'
-
-import { Button } from '@/js/components/ui'
 
 export default function Home() {
     return (
@@ -54,23 +49,6 @@ export default function Home() {
                                     primitives instead of Tailwind and shadcn.
                                 </Text>
                             </Stack>
-
-                            <Group gap="md" wrap="wrap">
-                                <Button
-                                    leftSection={
-                                        <ThemeIcon color="cyan" radius="xl" size={28} variant="white">
-                                            <ArrowRight size={16} />
-                                        </ThemeIcon>
-                                    }
-                                    size="lg"
-                                >
-                                    Open next step
-                                </Button>
-
-                                <Button size="lg" variant="outline">
-                                    Review setup
-                                </Button>
-                            </Group>
                         </Stack>
                     </Paper>
                 </Container>

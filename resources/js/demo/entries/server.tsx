@@ -6,7 +6,7 @@ import {
     pageLookupPaths,
     pages,
 } from '@/js/app/config/page-registry'
-import { createLibraInertiaServer } from '@/js/inertia'
+import { createLibraInertiaServer } from '@libra-shell/server'
 
 void createLibraInertiaServer({
     appName,

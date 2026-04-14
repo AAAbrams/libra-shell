@@ -1,11 +1,12 @@
 import '@shell-css-entry'
 
 import { MantineProvider } from '@mantine/core'
+import type { ComponentType } from 'react'
 
-import { createLibraInertiaServer } from '@libra-shell'
+import { createLibraInertiaServer } from '@libra-shell/server'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Libra Shell Starter'
-const pages = import.meta.glob('../pages/**/*.tsx')
+const pages = import.meta.glob<{ default: ComponentType<any> }>('../pages/**/*.tsx')
 
 void createLibraInertiaServer({
     appName,

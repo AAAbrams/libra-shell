@@ -5,10 +5,8 @@ import path from 'path'
 
 type RollupInput = string | string[] | Record<string, string>
 const moduleRoot = __dirname
-const defaultProjectRoot = (
-    moduleRoot.includes('/local/modules/')
-    || moduleRoot.includes('/vendor/')
-)
+const defaultProjectRoot =
+    moduleRoot.includes('/vendor/')
     ? path.resolve(moduleRoot, '../../..')
     : moduleRoot
 const defaultPagesRoot = path.resolve(moduleRoot, 'resources/js/pages')
@@ -113,7 +111,6 @@ function resolveOutputDir(
         normalizedOutDir === '.' ||
         normalizedOutDir.startsWith('./') ||
         normalizedOutDir.startsWith('../') ||
-        normalizedOutDir.startsWith('public/') ||
         normalizedOutDir.startsWith('bootstrap/')
     ) {
         return path.resolve(moduleRoot, normalizedOutDir)
@@ -207,8 +204,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     const projectRoot = env.VITE_APP_ROOT?.trim()
         ? resolveOutputDir(env.VITE_APP_ROOT, defaultProjectRoot)
         : defaultProjectRoot
-    const clientOutDir = env.VITE_OUT_DIR?.trim() || 'local/assets/libra.shell/build'
-    const ssrOutDir = env.VITE_SSR_OUT_DIR?.trim() || 'local/assets/libra.shell/ssr'
+    const clientOutDir = env.VITE_OUT_DIR?.trim() || 'public/build'
+    const ssrOutDir = env.VITE_SSR_OUT_DIR?.trim() || 'bootstrap/ssr'
     const outDir = resolveOutputDir(
         isSsrBuild ? ssrOutDir : clientOutDir,
         projectRoot
@@ -238,6 +235,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         },
 
         build: {
+            assetsDir: '',
             copyPublicDir: false,
             emptyOutDir: true,
             manifest: isSsrBuild ? false : 'manifest.json',
@@ -267,6 +265,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 {
                     find: /^@libra-shell$/,
                     replacement: resolveFromRoot('resources/js/index.ts'),
+                },
+                {
+                    find: '@libra-shell/server',
+                    replacement: resolveFromRoot('resources/js/server.tsx'),
                 },
                 {
                     find: /^@\//,

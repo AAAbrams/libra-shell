@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
 const moduleRoot = __dirname;
-const defaultProjectRoot = (moduleRoot.includes('/local/modules/')
-    || moduleRoot.includes('/vendor/'))
+const defaultProjectRoot = moduleRoot.includes('/vendor/')
     ? path.resolve(moduleRoot, '../../..')
     : moduleRoot;
 const defaultPagesRoot = path.resolve(moduleRoot, 'resources/js/pages');
@@ -69,7 +68,6 @@ function resolveOutputDir(outDir, projectRoot) {
     if (normalizedOutDir === '.' ||
         normalizedOutDir.startsWith('./') ||
         normalizedOutDir.startsWith('../') ||
-        normalizedOutDir.startsWith('public/') ||
         normalizedOutDir.startsWith('bootstrap/')) {
         return path.resolve(moduleRoot, normalizedOutDir);
     }
@@ -133,8 +131,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     const projectRoot = env.VITE_APP_ROOT?.trim()
         ? resolveOutputDir(env.VITE_APP_ROOT, defaultProjectRoot)
         : defaultProjectRoot;
-    const clientOutDir = env.VITE_OUT_DIR?.trim() || 'local/assets/libra.shell/build';
-    const ssrOutDir = env.VITE_SSR_OUT_DIR?.trim() || 'local/assets/libra.shell/ssr';
+    const clientOutDir = env.VITE_OUT_DIR?.trim() || 'public/build';
+    const ssrOutDir = env.VITE_SSR_OUT_DIR?.trim() || 'bootstrap/ssr';
     const outDir = resolveOutputDir(isSsrBuild ? ssrOutDir : clientOutDir, projectRoot);
     const base = resolvePublicBasePath(clientOutDir, env.VITE_PUBLIC_BASE);
     const input = parseInput(env.VITE_INPUT || env.VITE_ENTRY);
@@ -160,6 +158,7 @@ export default defineConfig(({ mode, isSsrBuild }) => {
             strictPort: true,
         },
         build: {
+            assetsDir: '',
             copyPublicDir: false,
             emptyOutDir: true,
             manifest: isSsrBuild ? false : 'manifest.json',
@@ -186,6 +185,10 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 {
                     find: /^@libra-shell$/,
                     replacement: resolveFromRoot('resources/js/index.ts'),
+                },
+                {
+                    find: '@libra-shell/server',
+                    replacement: resolveFromRoot('resources/js/server.tsx'),
                 },
                 {
                     find: /^@\//,

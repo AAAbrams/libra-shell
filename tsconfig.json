@@ -20,6 +20,9 @@
             "@/*": [
                 "resources/*"
             ],
+            "@libra-shell/*": [
+                "resources/js/*"
+            ],
             "@libra-shell": [
                 "resources/js/index.ts"
             ]

@@ -21,7 +21,7 @@ use Slim\Views\Twig;
 
 class InertiaServiceProvider implements ServiceProviderInterface
 {
-    private const DEFAULT_BUILD_DIR = 'local/assets/libra.shell/build';
+    private const DEFAULT_BUILD_DIR = 'public/build';
     private const DEFAULT_DEV_SERVER = 'http://node:5173';
     public const ROOT_VIEW_KEY = 'libra.shell.inertia.root_view';
     public const VIEW_PATHS_KEY = 'libra.shell.inertia.view_paths';
@@ -79,7 +79,7 @@ class InertiaServiceProvider implements ServiceProviderInterface
         };
         $pimple[ViteService::class] = function (Container $c) {
             $moduleRoot = dirname(__DIR__, 2);
-            $projectRoot = dirname($moduleRoot, 3);
+            $projectRoot = $this->resolveProjectRoot($moduleRoot);
             $configuredBuildDir = getenv('VITE_OUT_DIR') ?: self::DEFAULT_BUILD_DIR;
             $buildDir = $this->resolveBuildDir(
                 $moduleRoot,
@@ -168,13 +168,21 @@ class InertiaServiceProvider implements ServiceProviderInterface
         if (
             strpos($buildDir, './') === 0
             || strpos($buildDir, '../') === 0
-            || strpos($buildDir, 'public/') === 0
             || strpos($buildDir, 'bootstrap/') === 0
         ) {
             return rtrim($moduleRoot . '/' . ltrim($buildDir, '/'), '/');
         }
 
         return rtrim($projectRoot . '/' . ltrim($buildDir, '/'), '/');
+    }
+
+    private function resolveProjectRoot(string $moduleRoot): string
+    {
+        if (strpos($moduleRoot, '/vendor/') !== false) {
+            return dirname($moduleRoot, 3);
+        }
+
+        return $moduleRoot;
     }
 
     private function resolvePublicBuildPath(string $buildDir): string
@@ -196,7 +204,7 @@ class InertiaServiceProvider implements ServiceProviderInterface
             return filter_var($configuredMode, FILTER_VALIDATE_BOOLEAN);
         }
 
-        $appEnv = getenv('APP_ENV') ?: getenv('BITRIX_ENV') ?: 'prod';
+        $appEnv = getenv('APP_ENV') ?: 'prod';
 
         return in_array(strtolower($appEnv), ['dev', 'development', 'local'], true);
     }
