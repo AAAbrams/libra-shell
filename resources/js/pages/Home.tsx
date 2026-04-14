@@ -12,7 +12,7 @@ import {
 } from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 
-import { Button } from '@libra-shell/ui'
+import { Button } from '@/js/components/ui'
 
 export default function Home() {
     return (

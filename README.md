@@ -1,133 +1,84 @@
 # Libra Shell
 
-`libra/shell` — это модуль для Bitrix, который предоставляет:
+`libra/shell` теперь позиционируется как микрофреймворк для Inertia-приложений на Slim/Twig/Vite, а не как Bitrix-модуль.
 
-- точки входа на базе Slim для SPA-маршрутов
-- интеграцию Inertia для PHP
-- React/Vite frontend с поддержкой SSR
-- UI-слой на Mantine вместо Tailwind/shadcn
-- возможность использовать внешние точки входа и внешние директории с TSX-страницами
+Пакет даёт:
 
-## Использование С Composer
+- PHP bootstrap для запуска Slim-приложения из внешнего проекта
+- Inertia service provider с SSR/Twig/Vite интеграцией
+- минимальный JS runtime для запуска Inertia client и SSR entrypoint-ов извне
+- демонстрационный starter внутри репозитория
+- CLI-инициализатор стартовой структуры
 
-Рекомендуемая схема подключения из хост-проекта:
+## Архитектурное решение по auth-sso
+
+`auth-sso` больше не является частью ядра `libra/shell`.
+
+Почему:
+
+- это не инфраструктура Inertia, а прикладной auth-слой
+- требования к auth почти всегда зависят от хост-проекта
+- прежняя реализация была жёстко связана с Bitrix и таблицей пользователей
+- в микрофреймворке такие зависимости только раздувают публичный API и мешают переиспользованию
+
+Если SSO/JWT всё же нужен, его лучше выносить в отдельный адаптер или пакет рядом с доменной моделью проекта. Такой адаптер уже может регистрировать свои роуты, middleware, user resolver, cookie policy и storage-интеграцию.
+
+## Что осталось в ядре
+
+- `Libra\Shell\Bootstrap\ShellBootstrap`
+- `Libra\Shell\ServiceProvider\InertiaServiceProvider`
+- Twig extensions для Inertia и Vite
+- Vite/SSR инфраструктура
+- JS helper-ы:
+  - `createLibraInertiaClient`
+  - `createLibraInertiaServer`
+  - `resolveInitialPage`
+  - `resolvePageComponent`
+
+JS public surface намеренно сжат. Внешний проект сам владеет своими `entries`, `providers`, страницами и стилями.
+
+## Установка
 
 ```json
 {
   "require": {
     "libra/shell": "^1.0",
-    "libra/inertia-psr15": "dev-master"
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:<org>/inertia-psr15.git"
-    },
-    {
-      "type": "vcs",
-      "url": "git@github.com:<org>/libra.shell.git"
-    }
-  ]
-}
-```
-
-Важно:
-
-- Composer не наследует `repositories` из зависимостей.
-- Если `libra/shell` требует `libra/inertia-psr15`, корневой проект тоже должен знать, откуда получать `libra/inertia-psr15`.
-
-## Подготовка Отдельного Репозитория
-
-Перед публикацией `libra/shell` как отдельного репозитория лучше сохранить
-текущую рабочую версию для монорепозитория, а для публикуемого репозитория
-подготовить отдельный вариант со следующими изменениями:
-
-1. Переименовать `.env` в `.env.example` и оставить только безопасные значения по умолчанию.
-2. Оставить только исходники и не публиковать сгенерированные артефакты и `node_modules`.
-3. Убедиться, что в репозитории используется standalone `composer.json` из этого README.
-
-Рекомендуемый standalone `composer.json`:
-
-```json
-{
-  "name": "libra/shell",
-  "description": "Bitrix SPA shell with Inertia, Slim and React SSR",
-  "type": "library",
-  "autoload": {
-    "psr-4": {
-      "Libra\\Shell\\": "src/"
-    }
-  },
-  "require": {
-    "ext-openssl": "*",
-    "firebase/php-jwt": "^6.4",
-    "laminas/laminas-diactoros": "2.0.0",
-    "libra/inertia-psr15": "dev-master",
-    "slim/twig-view": "^2.5"
+    "libra/inertia-psr15": "^1.0"
   }
 }
 ```
 
-Примечания:
+`composer.json` пакета теперь декларирует прямые зависимости на `slim/slim`, `slim/twig-view` и `vlucas/phpdotenv`, чтобы bootstrap был самостоятельным.
 
-- Не стоит держать `"version": "1.0"` в публикуемом пакете. Лучше использовать git-теги.
-- Корневой проект всё равно должен объявлять оба VCS-репозитория:
-  - `libra/shell`
-  - `libra/inertia-psr15`
-- Если `libra/inertia-psr15` остаётся на `dev-master`, корневой проект должен разрешать такую stability.
+## Быстрый старт через CLI
 
-## Переменные Окружения
-
-Модуль читает свой собственный `.env` из корня модуля.
-
-Основные переменные:
-
-```dotenv
-VITE_INPUT=resources/js/app/entries/client.tsx
-VITE_CSS_ENTRY=resources/css/app.css
-VITE_OUT_DIR=local/assets/libra.shell/build
-VITE_SSR_OUT_DIR=local/assets/libra.shell/ssr
-VITE_SSR_PORT=13714
-VITE_DEV_SERVER=http://node:5173
-INERTIA_SSR_URL=http://node:13714/render
-VITE_SHELL_PAGE_PATHS=resources/js/pages,../../libra-shell/resources/js/pages
-VITE_SHELL_EXTRA_PAGE_DIR=../../libra-shell/resources/js/pages
-```
-
-`VITE_SHELL_PAGE_PATHS` задаёт, где frontend и SSR ищут page-компоненты.
-
-`VITE_CSS_ENTRY` позволяет глобально подменить базовый CSS entry. Если переменная не указана, модуль использует встроенный `resources/css/app.css`. Для внешнего файла можно указать:
-
-- путь относительно корня проекта, например `resources/css/app.css`
-- путь относительно корня модуля, например `../../custom/app.css`
-- абсолютный путь
-
-Поведение по умолчанию:
-
-- страницы внутри модуля: `resources/js/pages`
-- внешние страницы при необходимости: `../../libra-shell/resources/js/pages`
-
-## Сборка Frontend
-
-Внутри контейнера проекта:
+После установки пакета можно сгенерировать стартовые файлы в хост-проект:
 
 ```bash
-cd /var/www/dev.doctorslon.ru/local/modules/libra.shell
-npm ci
-npm run build:all
-npm run serve:ssr
+vendor/bin/libra-shell-init
 ```
 
-Результат сборки:
+Или в конкретную директорию:
 
-- client: `local/assets/libra.shell/build`
-- SSR: `local/assets/libra.shell/ssr`
+```bash
+vendor/bin/libra-shell-init /path/to/project
+```
 
-## Внешние Точки Входа
+Флаг `--force` перезапишет существующие starter-файлы.
 
-`ShellBootstrap` можно конфигурировать вне модуля.
+CLI создаёт:
 
-Пример:
+- `bootstrap/libra-shell.php`
+- `routes/libra-shell.php`
+- `resources/views/app.twig`
+- `resources/css/app.css`
+- `resources/js/entries/client.tsx`
+- `resources/js/entries/server.tsx`
+- `resources/js/pages/Home.tsx`
+
+## PHP bootstrap
+
+Роутинг и root view теперь инициализируются извне.
 
 ```php
 <?php
@@ -136,7 +87,15 @@ use Cherif\InertiaPsr15\Middleware\InertiaMiddleware;
 use Libra\Shell\Bootstrap\ShellBootstrap;
 use Libra\Shell\ServiceProvider\InertiaServiceProvider;
 
-$app = (new ShellBootstrap($_SERVER['DOCUMENT_ROOT'] . '/local/modules/libra.shell'))
+$projectRoot = dirname(__DIR__);
+
+return (new ShellBootstrap($projectRoot))
+    ->registerDefinitions([
+        InertiaServiceProvider::ROOT_VIEW_KEY => 'app.twig',
+        InertiaServiceProvider::VIEW_PATHS_KEY => [
+            $projectRoot . '/resources/views',
+        ],
+    ])
     ->registerServiceProviders([
         new InertiaServiceProvider(),
     ])
@@ -144,87 +103,167 @@ $app = (new ShellBootstrap($_SERVER['DOCUMENT_ROOT'] . '/local/modules/libra.she
         InertiaMiddleware::class,
     ])
     ->registerRouteFiles([
-        __DIR__ . '/routes/web.php',
+        $projectRoot . '/routes/libra-shell.php',
     ])
     ->create();
 ```
 
-После этого внешний route-файл сможет рендерить страницы, которые лежат вне модуля, если путь к ним включён в `VITE_SHELL_PAGE_PATHS`.
+`registerDefinitions()` нужен для передачи конфигурации в контейнер до фактического разрешения сервисов.
 
-## Переиспользуемый Frontend-Слой
+## Внешние роуты
 
-`libra/shell` можно использовать не только как Inertia/SSR-инфраструктуру, но и как источник общих React/TypeScript сущностей для основного проекта.
+```php
+<?php
 
-Рекомендуемое разделение:
+use Cherif\InertiaPsr15\Middleware\InertiaMiddleware;
+use Cherif\InertiaPsr15\Service\InertiaInterface;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\App;
 
-- внутри модуля:
-  - `resources/js/components/ui` — базовые UI-компоненты
-  - `resources/js/components/shared` — переиспользуемые блоки
-  - `resources/js/hooks` — общие React hooks
-  - `resources/js/lib` — утилиты и Inertia helpers
-  - `resources/js/layouts` — общие layout-компоненты
-- в основном проекте:
-  - бизнес-страницы
-  - бизнес-компоненты
-  - проектные маршруты
+return function (App $app) {
+    $app->get('/', function (Request $request, Response $response) {
+        /** @var InertiaInterface $inertia */
+        $inertia = $request->getAttribute(InertiaMiddleware::INERTIA_ATTRIBUTE);
 
-Базовая структура frontend-части модуля:
-
-```text
-resources/js/
-  app/
-    config/
-    entries/
-  components/
-    shared/
-    ui/
-  hooks/
-  layouts/
-  lib/
-  pages/
-  types/
+        return $inertia->render('Home');
+    });
+};
 ```
 
-Доступные alias внутри страниц, которые собираются через `libra/shell`:
+## Внешние JS entrypoint-ы
 
-```ts
-import { Button } from '@libra-shell/ui'
-import { Container, Header } from '@libra-shell/shared'
-import { useTypedPage } from '@libra-shell/hooks'
-import { resolvePageComponent, cn } from '@libra-shell/lib'
-import { CheckoutLayout } from '@libra-shell/layouts'
+Client entry:
+
+```tsx
+import '@shell-css-entry'
+
+import { MantineProvider } from '@mantine/core'
+import { createLibraInertiaClient } from '@libra-shell'
+
+const appName = import.meta.env.VITE_APP_NAME || 'My App'
+const pages = import.meta.glob('../pages/**/*.tsx')
+
+void createLibraInertiaClient({
+    appName,
+    pageLookupPaths: ['resources/js/pages'],
+    pages,
+    wrap: (app) => (
+        <MantineProvider defaultColorScheme="light" forceColorScheme="light">
+            {app}
+        </MantineProvider>
+    ),
+})
 ```
 
-Для внешних страниц это работает без дополнительной настройки, если сами страницы подключаются через `VITE_SHELL_PAGE_PATHS` и собираются Vite-конфигом модуля.
+Server entry:
 
-Базовый barrel-export модуля:
+```tsx
+import '@shell-css-entry'
 
-```ts
-import { Button, CheckoutLayout, useTypedPage } from '@libra-shell'
+import { MantineProvider } from '@mantine/core'
+import { createLibraInertiaServer } from '@libra-shell'
+
+const appName = import.meta.env.VITE_APP_NAME || 'My App'
+const pages = import.meta.glob('../pages/**/*.tsx')
+
+void createLibraInertiaServer({
+    appName,
+    pageLookupPaths: ['resources/js/pages'],
+    pages,
+    wrap: (app) => (
+        <MantineProvider defaultColorScheme="light" forceColorScheme="light">
+            {app}
+        </MantineProvider>
+    ),
+})
 ```
 
-`@libra-shell/ui` теперь является тонким адаптером поверх Mantine, чтобы общий UI-слой модуля оставался переиспользуемым и без зависимости от Tailwind/shadcn.
+## Twig root view
 
-Правило зависимости должно быть односторонним:
+Теперь `rootView` не зашит в библиотеку. Его выбирает хост-проект.
 
-- основной проект может зависеть от `libra/shell`
-- shared-код внутри `libra/shell` не должен зависеть от бизнес-кода основного проекта
+Пример:
 
-## Замечания По Репозиторию
+```twig
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libra Shell Starter</title>
+    {{ inertia_head(ssrHead) }}
+    {{ vite_react_refresh() }}
+    {{ vite('resources/js/entries/client.tsx') }}
+</head>
+<body>
+{{ inertia(page, ssrBody) }}
+</body>
+</html>
+```
 
-Этот репозиторий в норме должен содержать только исходные файлы.
+## Vite переменные
 
-Не нужно коммитить:
+Основные переменные:
 
-- `node_modules`
-- сгенерированный Vite build output
-- сгенерированные SSR-бандлы
-- `*.tsbuildinfo`
+```dotenv
+VITE_INPUT=resources/js/entries/client.tsx
+VITE_CSS_ENTRY=resources/css/app.css
+VITE_OUT_DIR=local/assets/libra.shell/build
+VITE_SSR_OUT_DIR=local/assets/libra.shell/ssr
+VITE_SSR_PORT=13714
+VITE_DEV_SERVER=http://127.0.0.1:5173
+VITE_SHELL_PAGE_PATHS=resources/js/pages
+```
 
-Практический чеклист для первого коммита:
+Опционально:
 
-1. Распаковать архив в чистую директорию будущего репозитория.
-2. Оставить `.env.example` и не коммитить реальный `.env`.
-3. Проверить, что `composer.json` уже соответствует standalone-варианту из этого README.
-4. Проверить, что `.gitignore` по-прежнему исключает `node_modules`, build output и SSR output.
-5. Выполнить `git init`, `git add .`, `git commit -m "Initial extract of libra/shell"`.
+```dotenv
+VITE_APP_ROOT=/absolute/path/to/host-project
+```
+
+`VITE_APP_ROOT` пригодится, если нужно явно переопределить корень хост-проекта. Для стандартных установок в `local/modules` и `vendor/libra/shell` корень теперь вычисляется автоматически.
+
+## Demo внутри репозитория
+
+В репозитории сохранён минимальный demo starter:
+
+- `bootstrap/app.php`
+- `routes/web.php`
+- `resources/views/app.twig`
+- `resources/js/demo/entries/client.tsx`
+- `resources/js/demo/entries/server.tsx`
+- `resources/js/pages/Home.tsx`
+
+Он нужен как живая референсная сборка и как источник stub-файлов для `libra-shell-init`.
+
+## NPM scripts
+
+```bash
+npm run build
+npm run build:ssr
+npm run build:all
+npm run serve:ssr
+npm run dev
+```
+
+`serve:ssr` теперь запускает SSR bundle через `scripts/serve-ssr.mjs`, который корректно вычисляет путь как для standalone-репозитория, так и для установки в `vendor`.
+
+## Итоговое направление
+
+`libra/shell` теперь отвечает только за transport/runtime слой:
+
+- bootstrap
+- routing integration
+- Inertia/Twig/Vite glue code
+- SSR startup
+
+Всё прикладное:
+
+- auth
+- SSO
+- user storage
+- project providers
+- business pages
+
+должно жить снаружи и подключаться как расширение хост-проекта.

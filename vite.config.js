@@ -1,15 +1,15 @@
-import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
 const moduleRoot = __dirname;
-const defaultProjectRoot = moduleRoot.includes('/local/modules/')
+const defaultProjectRoot = (moduleRoot.includes('/local/modules/')
+    || moduleRoot.includes('/vendor/'))
     ? path.resolve(moduleRoot, '../../..')
     : moduleRoot;
 const defaultPagesRoot = path.resolve(moduleRoot, 'resources/js/pages');
 function resolveBareImportsFromModuleRoot() {
-    const moduleImporter = path.resolve(moduleRoot, 'resources/js/app/entries/client.tsx');
+    const moduleImporter = path.resolve(moduleRoot, 'resources/js/demo/entries/client.tsx');
     return {
         name: 'libra-shell-external-page-imports',
         async resolveId(source, importer) {
@@ -89,12 +89,8 @@ function resolvePublicBasePath(publicOutDir, explicitBase) {
     }
     return `/${normalizedOutDir}/`;
 }
-function resolveOptionalShellOverride(extraShellJsRoot, relativePath, fallbackPath) {
-    const candidate = path.resolve(extraShellJsRoot, relativePath);
-    return fs.existsSync(candidate) ? candidate : fallbackPath;
-}
 function parseInput(rawInput) {
-    const fallbackInput = 'resources/js/app/entries/client.tsx';
+    const fallbackInput = 'resources/js/demo/entries/client.tsx';
     const normalizedInput = rawInput?.trim() || fallbackInput;
     if (normalizedInput.startsWith('{')) {
         const parsedInput = JSON.parse(normalizedInput);
@@ -148,10 +144,6 @@ export default defineConfig(({ mode, isSsrBuild }) => {
     const extraPagesDir = env.VITE_SHELL_EXTRA_PAGE_DIR?.trim()
         ? resolveDirectory(env.VITE_SHELL_EXTRA_PAGE_DIR, projectRoot)
         : defaultPagesRoot;
-    const extraShellJsRoot = path.dirname(extraPagesDir);
-    const shellAppConfigRoot = resolveOptionalShellOverride(extraShellJsRoot, 'app/config', resolveFromRoot('resources/js/app/config'));
-    const shellAppProvidersRoot = resolveOptionalShellOverride(extraShellJsRoot, 'app/providers', resolveFromRoot('resources/js/app/providers'));
-    const shellIconsRoot = resolveOptionalShellOverride(extraShellJsRoot, 'icons', path.resolve(extraShellJsRoot, 'icons'));
     return {
         envDir: moduleRoot,
         root: moduleRoot,
@@ -192,60 +184,8 @@ export default defineConfig(({ mode, isSsrBuild }) => {
         resolve: {
             alias: [
                 {
-                    find: /^@libra-shell\/ui$/,
-                    replacement: resolveFromRoot('resources/js/components/ui/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/ui\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/components/ui')}/$1`,
-                },
-                {
-                    find: /^@libra-shell\/shared$/,
-                    replacement: resolveFromRoot('resources/js/components/shared/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/shared\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/components/shared')}/$1`,
-                },
-                {
-                    find: /^@libra-shell\/hooks$/,
-                    replacement: resolveFromRoot('resources/js/hooks/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/hooks\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/hooks')}/$1`,
-                },
-                {
-                    find: /^@libra-shell\/lib$/,
-                    replacement: resolveFromRoot('resources/js/lib/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/lib\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/lib')}/$1`,
-                },
-                {
-                    find: /^@libra-shell\/layouts$/,
-                    replacement: resolveFromRoot('resources/js/layouts/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/layouts\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/layouts')}/$1`,
-                },
-                {
-                    find: /^@libra-shell\/types$/,
-                    replacement: resolveFromRoot('resources/js/types/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/types\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js/types')}/$1`,
-                },
-                {
                     find: /^@libra-shell$/,
                     replacement: resolveFromRoot('resources/js/index.ts'),
-                },
-                {
-                    find: /^@libra-shell\/(.*)$/,
-                    replacement: `${resolveFromRoot('resources/js')}/$1`,
                 },
                 {
                     find: /^@\//,
@@ -262,30 +202,6 @@ export default defineConfig(({ mode, isSsrBuild }) => {
                 {
                     find: '@shell-css-entry',
                     replacement: cssEntry,
-                },
-                {
-                    find: /^@shell-app-config$/,
-                    replacement: path.resolve(shellAppConfigRoot, 'index.ts'),
-                },
-                {
-                    find: /^@shell-app-config\/(.*)$/,
-                    replacement: `${shellAppConfigRoot}/$1`,
-                },
-                {
-                    find: /^@shell-app-providers$/,
-                    replacement: path.resolve(shellAppProvidersRoot, 'index.ts'),
-                },
-                {
-                    find: /^@shell-app-providers\/(.*)$/,
-                    replacement: `${shellAppProvidersRoot}/$1`,
-                },
-                {
-                    find: /^@shell-icons$/,
-                    replacement: path.resolve(shellIconsRoot, 'index.ts'),
-                },
-                {
-                    find: /^@shell-icons\/(.*)$/,
-                    replacement: `${shellIconsRoot}/$1`,
                 },
             ]
         }

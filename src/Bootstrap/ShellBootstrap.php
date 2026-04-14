@@ -29,10 +29,26 @@ class ShellBootstrap
     )
     {
         if ($environmentPath) {
-            Dotenv::createImmutable($environmentPath)->load();
+            Dotenv::createImmutable($environmentPath)->safeLoad();
         }
-        $_SERVER['SCRIPT_NAME'] = $_SERVER['REAL_FILE_PATH'];
+
+        if (isset($_SERVER['REAL_FILE_PATH'])) {
+            $_SERVER['SCRIPT_NAME'] = $_SERVER['REAL_FILE_PATH'];
+        }
+
         $this->container = new Container();
+    }
+
+    /**
+     * @param array<string, mixed> $definitions
+     */
+    public function registerDefinitions(array $definitions): self
+    {
+        foreach ($definitions as $key => $value) {
+            $this->container[$key] = $value;
+        }
+
+        return $this;
     }
 
     public function registerServiceProviders(array $serviceProviders): self

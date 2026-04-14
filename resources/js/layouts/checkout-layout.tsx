@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box } from '@mantine/core'
 
-import { Container, Header } from '@libra-shell/shared'
+import { Container, Header } from '@/js/components/shared'
 
 export interface CheckoutLayoutProps {
     children: React.ReactNode

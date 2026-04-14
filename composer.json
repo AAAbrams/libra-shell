@@ -1,17 +1,20 @@
 {
     "name": "libra/shell",
-    "description": "Bitrix SPA shell with Inertia, Slim and React SSR",
+    "description": "Composable Inertia microframework with Slim, Twig and React SSR",
     "type": "library",
+    "bin": [
+        "bin/libra-shell-init"
+    ],
     "autoload": {
         "psr-4": {
             "Libra\\Shell\\": "src/"
         }
     },
     "require": {
-        "ext-openssl": "*",
         "laminas/laminas-diactoros": "2.0.0",
-        "firebase/php-jwt": "^6.4",
         "libra/inertia-psr15": "^1.0",
-        "slim/twig-view": "^2.5"
+        "slim/slim": "^3.12",
+        "slim/twig-view": "^2.5",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

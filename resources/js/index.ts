@@ -1,5 +1,1 @@
-export * from './components'
-export * from '@libra-shell/hooks'
-export * from '@libra-shell/layouts'
-export * from '@libra-shell/lib'
-export * from '@libra-shell/types'
+export * from './inertia'

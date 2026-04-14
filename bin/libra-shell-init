@@ -1,0 +1,106 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$arguments = $argv;
+array_shift($arguments);
+
+if (in_array('--help', $arguments, true) || in_array('-h', $arguments, true)) {
+    fwrite(STDOUT, <<<TEXT
+Usage: libra-shell-init [target-path] [--force]
+
+Copies a minimal libra-shell starter into the target project.
+
+TEXT);
+    exit(0);
+}
+
+$force = in_array('--force', $arguments, true);
+$targetPath = '.';
+
+foreach ($arguments as $argument) {
+    if ($argument !== '--force') {
+        $targetPath = $argument;
+        break;
+    }
+}
+
+$targetRoot = realpath($targetPath);
+
+if ($targetRoot === false) {
+    $targetRoot = getcwd() . '/' . trim($targetPath, '/');
+}
+
+$targetRoot = rtrim($targetRoot, '/');
+$packageRoot = dirname(__DIR__);
+$stubRoot = $packageRoot . '/stubs/init';
+
+$files = [
+    'bootstrap/libra-shell.php',
+    'routes/libra-shell.php',
+    'resources/views/app.twig',
+    'resources/css/app.css',
+    'resources/js/entries/client.tsx',
+    'resources/js/entries/server.tsx',
+    'resources/js/pages/Home.tsx',
+];
+
+$created = [];
+$skipped = [];
+
+foreach ($files as $relativePath) {
+    $source = $stubRoot . '/' . $relativePath . '.stub';
+    $destination = $targetRoot . '/' . $relativePath;
+
+    if (!file_exists($source)) {
+        fwrite(STDERR, "Missing stub: {$source}\n");
+        exit(1);
+    }
+
+    if (file_exists($destination) && !$force) {
+        $skipped[] = $relativePath;
+        continue;
+    }
+
+    $directory = dirname($destination);
+
+    if (!is_dir($directory) && !mkdir($directory, 0777, true) && !is_dir($directory)) {
+        fwrite(STDERR, "Unable to create directory: {$directory}\n");
+        exit(1);
+    }
+
+    if (file_put_contents($destination, file_get_contents($source)) === false) {
+        fwrite(STDERR, "Unable to write file: {$destination}\n");
+        exit(1);
+    }
+
+    $created[] = $relativePath;
+}
+
+fwrite(STDOUT, "libra-shell starter prepared in {$targetRoot}\n");
+
+if ($created !== []) {
+    fwrite(STDOUT, "\nCreated:\n");
+
+    foreach ($created as $relativePath) {
+        fwrite(STDOUT, "  - {$relativePath}\n");
+    }
+}
+
+if ($skipped !== []) {
+    fwrite(STDOUT, "\nSkipped existing files:\n");
+
+    foreach ($skipped as $relativePath) {
+        fwrite(STDOUT, "  - {$relativePath}\n");
+    }
+}
+
+fwrite(STDOUT, <<<TEXT
+
+Next steps:
+  1. Register bootstrap/libra-shell.php in your front controller.
+  2. Point VITE_INPUT to resources/js/entries/client.tsx.
+  3. Build SSR with resources/js/entries/server.tsx.
+
+TEXT);

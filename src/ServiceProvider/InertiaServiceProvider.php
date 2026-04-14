@@ -23,6 +23,21 @@ class InertiaServiceProvider implements ServiceProviderInterface
 {
     private const DEFAULT_BUILD_DIR = 'local/assets/libra.shell/build';
     private const DEFAULT_DEV_SERVER = 'http://node:5173';
+    public const ROOT_VIEW_KEY = 'libra.shell.inertia.root_view';
+    public const VIEW_PATHS_KEY = 'libra.shell.inertia.view_paths';
+
+    /**
+     * @var array<string, mixed>
+     */
+    private $defaults;
+
+    /**
+     * @param array<string, mixed> $defaults
+     */
+    public function __construct(array $defaults = [])
+    {
+        $this->defaults = $defaults;
+    }
 
     /**
      * Registers services on the given container.
@@ -32,6 +47,8 @@ class InertiaServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
+        $this->registerDefaults($pimple);
+
         $pimple[InertiaMiddleware::class] = function (Container $c) {
             return new InertiaMiddleware($c[InertiaFactoryInterface::class]);
         };
@@ -46,7 +63,7 @@ class InertiaServiceProvider implements ServiceProviderInterface
             $twig = $c[Twig::class];
             return new SsrRootViewProvider(
                 [$twig->getEnvironment(), 'render'],
-                'app.twig',
+                $this->resolveRootView($c),
                 $c[SsrGateway::class]
             );
         };
@@ -78,7 +95,7 @@ class InertiaServiceProvider implements ServiceProviderInterface
         };
         $pimple[Twig::class] = function (Container $c) {
             $twig = new Twig(
-                dirname(__DIR__, 2) . '/resources/views',
+                $this->resolveViewPaths($c),
                 ['cache' => false]
             );
             $twig->addExtension(new InertiaTwigExtension());
@@ -88,6 +105,50 @@ class InertiaServiceProvider implements ServiceProviderInterface
         $pimple['view'] = function (Container $c) {
             return $c[Twig::class];
         };
+    }
+
+    private function registerDefaults(Container $pimple): void
+    {
+        if (!$pimple->offsetExists(self::ROOT_VIEW_KEY)) {
+            $pimple[self::ROOT_VIEW_KEY] = $this->defaults['rootView'] ?? 'app.twig';
+        }
+
+        if (!$pimple->offsetExists(self::VIEW_PATHS_KEY)) {
+            $pimple[self::VIEW_PATHS_KEY] = $this->defaults['viewPaths']
+                ?? [dirname(__DIR__, 2) . '/resources/views'];
+        }
+    }
+
+    private function resolveRootView(Container $container): string
+    {
+        $rootView = trim((string) $container[self::ROOT_VIEW_KEY]);
+
+        return $rootView !== '' ? $rootView : 'app.twig';
+    }
+
+    /**
+     * @return string[]
+     */
+    private function resolveViewPaths(Container $container): array
+    {
+        $viewPaths = $container[self::VIEW_PATHS_KEY];
+
+        if (!is_array($viewPaths)) {
+            return [dirname(__DIR__, 2) . '/resources/views'];
+        }
+
+        $normalized = array_values(array_filter(array_map(
+            function ($path): string {
+                return is_string($path) ? trim($path) : '';
+            },
+            $viewPaths
+        )));
+
+        if ($normalized === []) {
+            return [dirname(__DIR__, 2) . '/resources/views'];
+        }
+
+        return $normalized;
     }
 
     private function resolveBuildDir(

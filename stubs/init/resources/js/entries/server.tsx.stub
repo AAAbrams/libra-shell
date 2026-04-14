@@ -1,0 +1,22 @@
+import '@shell-css-entry'
+
+import { MantineProvider } from '@mantine/core'
+
+import { createLibraInertiaServer } from '@libra-shell'
+
+const appName = import.meta.env.VITE_APP_NAME || 'Libra Shell Starter'
+const pages = import.meta.glob('../pages/**/*.tsx')
+
+void createLibraInertiaServer({
+    appName,
+    pageLookupPaths: ['resources/js/pages'],
+    pages,
+    wrap: (app) => (
+        <MantineProvider
+            defaultColorScheme="light"
+            forceColorScheme="light"
+        >
+            {app}
+        </MantineProvider>
+    ),
+})

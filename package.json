@@ -8,9 +8,9 @@
         "build": "vite build",
         "build:all": "npm run build && npm run build:ssr",
         "watch": "vite build --watch",
-        "build:ssr": "vite build --ssr resources/js/app/entries/server.tsx",
+        "build:ssr": "vite build --ssr resources/js/demo/entries/server.tsx",
         "preview": "vite preview",
-        "serve:ssr": "node ../../assets/libra.shell/ssr/ssr.js",
+        "serve:ssr": "node scripts/serve-ssr.mjs",
         "dev:ssr": "npm run build:ssr && npm run serve:ssr",
         "typecheck": "tsc -b"
     },
