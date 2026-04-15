@@ -15,10 +15,20 @@
 
 ```json
 {
-  "require": {
-    "libra/shell": "^1.0",
-    "libra/inertia-psr15": "^1.0"
-  }
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/AAAbrams/inertia-psr15.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/AAAbrams/libra-shell.git"
+        }
+    ],
+    "require": {
+        "libra/shell": "^1.0",
+        "libra/inertia-psr15": "^1.0"
+    }
 }
 ```
 
